@@ -1,0 +1,57 @@
+nav {
+    background-color: darkgray;
+}
+ul {
+    list-style: none;
+}
+li {
+    display: inline;
+    margin: 10px;
+}
+a, a:visited {
+    text-decoration: none;
+}
+
+/* Trade page */
+#company-suggestions {
+    position: relative;
+    left: 42px;
+    padding: 0;
+    margin: 0;
+    border: 1px solid lightgray;
+    background-color: white;
+    list-style: none;
+    max-width: 400px;
+}
+.suggestion-container {
+    border: 1px solid lightgray;
+    display: block;
+    margin: 0px;
+}
+.suggestion-container:hover {
+    background-color: lightgray;
+    cursor: pointer;
+}
+.suggestion-text {
+    padding-left: 10px;
+}
+.field-container {
+    margin: 15px 0px;
+}
+.estimate-header {
+    border-top: 1px solid lightgray;
+    border-bottom: 1px solid lightgray;
+}
+.order-details-container {
+    border-bottom: 1px solid lightgray;
+}
+th {
+    padding-right: 1em;
+    text-align: right;
+    padding: 5px;
+}
+#submit-trade {
+    margin: 10px;
+    background-color: gold;
+    border-radius: 4px;
+}
