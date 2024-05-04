@@ -3,6 +3,9 @@ const path = require('path');
 const app = express();
 const port = 3000;
 
+// database functions
+const db = require('./database');
+
 
 // For API key
 require('dotenv').config({path:path.join(__dirname, '../', '.env')});
@@ -24,10 +27,43 @@ app.get('/', (req, res) => {
 })
 
 
-app.post('/login', (req, res) => {
-    console.log(req.body);
-    res.send({token: "test123"});
+app.post('/register', async (req, res) => {
+
+    // add credentials to a mongo doc
+    const client = await db.connectToDB();
+
+    const newUser = {
+        firstname: req.body.firstName,
+        lastname: req.body.lastName,
+        email: req.body.email,
+        username: req.body.username,
+        password: req.body.password,
+    }
+
+    // See if username is already in use
+    const userExists = await db.lookUpUser(client, newUser.username);
+    
+    if (userExists) {
+        console.log(`Username ${newUser.username} is already taken.`)
+    } else {
+        await db.addUser(client, newUser);
+        console.log('New user added successfully');
+        res.send({token: "test123"});
+    }
 })
+/*
+app.post('/login', async (req, res) => {
+    // verify password of existing user
+    // Authenticate password
+    const passwordVerified = await db.verifyPassword(client, newUser.username, newUser.password);
+    if (passwordVerified) {
+        res.send({token: "test123"});
+    }
+    else {
+        console.log('Incorrect password');
+    }
+})
+*/
 
 
 app.post('/quote', async (req, res) => {

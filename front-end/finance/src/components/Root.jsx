@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, Link } from 'react-router-dom';
-import Login from './Login';
+import Register from './Login/Login.jsx';
 import useToken from './useToken';
 
 
@@ -10,7 +10,7 @@ export default function App() {
     const {token, setToken} = useToken();
 
     if (!token) {
-        return <Login setToken={setToken} />
+        return <Register setToken={setToken} />
     }
 
     return (
