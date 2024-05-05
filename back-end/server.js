@@ -3,9 +3,11 @@ const path = require('path');
 const app = express();
 const port = 3000;
 
+// **********************************************
+// SET UP
+
 // database functions
 const db = require('./database');
-
 
 // For API key
 require('dotenv').config({path:path.join(__dirname, '../', '.env')});
@@ -20,7 +22,7 @@ app.use(cors({
 
 // Cofigure json parsing
 app.use(express.json());
-
+// **********************************************
 
 app.get('/', (req, res) => {
     res.send();
@@ -28,42 +30,74 @@ app.get('/', (req, res) => {
 
 
 app.post('/register', async (req, res) => {
+    // Add user info to a mongo doc
 
-    // add credentials to a mongo doc
-    const client = await db.connectToDB();
+    try {
+        // Connect to db
+        const client = await db.connectToDB();
 
-    const newUser = {
-        firstname: req.body.firstName,
-        lastname: req.body.lastName,
-        email: req.body.email,
-        username: req.body.username,
-        password: req.body.password,
-    }
+        const newUser = {
+            firstname: req.body.firstName,
+            lastname: req.body.lastName,
+            email: req.body.email,
+            username: req.body.username,
+            password: req.body.password,
+        }
 
-    // See if username is already in use
-    const userExists = await db.lookUpUser(client, newUser.username);
-    
-    if (userExists) {
-        console.log(`Username ${newUser.username} is already taken.`)
-    } else {
-        await db.addUser(client, newUser);
-        console.log('New user added successfully');
-        res.send({token: "test123"});
+        // See if username is already in use
+        const userExists = await db.lookUpUser(client, newUser.username);
+        
+        if (userExists) {
+            console.log(`Username ${newUser.username} is already taken.`)
+            res.status(409).send({error: 'Username alread taken'}); // Conflict status code
+        } else {
+            await db.addUser(client, newUser);
+            console.log('New user added successfully');
+            res.status(201).send({message: 'User registered successfully'});
+        }
+    } catch (error) {
+        console.error(`Error registering new user: ${error}`);
+        res.status(500).send({error: 'Internal server error'});
     }
 })
-/*
+
+
 app.post('/login', async (req, res) => {
-    // verify password of existing user
-    // Authenticate password
-    const passwordVerified = await db.verifyPassword(client, newUser.username, newUser.password);
-    if (passwordVerified) {
-        res.send({token: "test123"});
+    // Verify password of existing user
+
+    // Connect to db
+    // There would be a better way to do this than calling connectToDB() for every route
+    const client = await db.connectToDB();
+
+    const loginUser = req.body.username;
+    const loginPassword = req.body.password;
+
+    const sessionToken = await db.verifyPassword(client, loginUser, loginPassword);
+    if (sessionToken) {
+        res.send({token: sessionToken});
     }
     else {
         console.log('Incorrect password');
+        res.status(401).send({error: 'Incorrect password'});
     }
 })
-*/
+
+
+app.post('/make-trade', async (req, res) => {
+    // Just confirm order details were posted correctly for now
+    const orderDetails = req.body;
+    console.log(orderDetails);
+    
+    // Connect to db
+    const client = await db.connectToDB();
+
+    // Update user's document
+    const tradeComplete = await db.makeTrade(client, orderDetails);
+
+    // Make sure you change this later
+    res.status(200).send();
+})
+
 
 
 app.post('/quote', async (req, res) => {

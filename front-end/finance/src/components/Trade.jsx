@@ -84,18 +84,53 @@ function AutoSuggestions({ suggestions, setStock, setShowSuggestions, setStockPr
 }
 
 
-export default function Trade() {
-    const [stock, setStock] = useState('')
-    const [suggestions, setSuggestions] = useState('') // This is for the autocomplete feature
+async function makeTrade(event, quantity, stock, orderType) {
+    // Execute a buy or sell order
+    // For now this just changes the qty of a stock in the users mongo doc - account balance is not considered or updated
+    event.preventDefault();
+
+    const orderDetails = {
+        quantity,
+        stock,
+        orderType, 
+        token: sessionStorage.token
+    }
+
+    // Make fetch request to server.js
+    try {
+        const response = await fetch('http://localhost:3000/make-trade', {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(orderDetails)
+        });
+
+        if (!response.ok) {
+            throw new Error('Server response from /make-trade was not ok.')
+        }
+
+        // Notify user of successful trade
+        alert(`Successfully ${orderType == 'buy' ? 'bought' : 'sold'} ${quantity} shares of ${stock}`)
+
+    } catch (error) {
+        console.error(`Error making fetch request: ${error}`);
+    }
+}
+
+
+
+export default function Trade({ token }) {
+    const [stock, setStock] = useState('');
+    const [suggestions, setSuggestions] = useState(''); // This is for the autocomplete feature
     const [showSuggestions, setShowSuggestions] = useState(true); // Show or hide the autocomplete options on click
     const [stockPrice, setStockPrice] = useState(0); // Save price of selected stock, get total when qty is entered
-    const [quantity, setQuantity] = useState('')
+    const [quantity, setQuantity] = useState('');
+    const [orderType, setOrderType] = useState('');
     const [orderValue, setOrderValue] = useState((0).toFixed(2));
     const [brokerageFee, setBrokerageFee] = useState((0).toFixed(2));
 
     return (
         <>
-            <form>
+            <form id="order-form">
                 <div className="field-container">
                     <label htmlFor="stock">Code: </label>
                     <input 
@@ -123,10 +158,10 @@ export default function Trade() {
                     <label htmlFor="order-type">Order Type: </label>
                     <div id="order-type" style={{display:"inline-block"}}>
 
-                            <input type="radio" id="buy"></input>
+                            <input type="radio" id="buy" onClick={() => setOrderType('buy')}></input>
                             <label htmlFor="buy" style={{color:"green"}}>BUY</label>
 
-                            <input type="radio" id="sell"></input>
+                            <input type="radio" id="sell" onClick={() => setOrderType('sell')}></input>
                             <label htmlFor="buy" style={{color:"red"}}>SELL</label>
                     </div>
                 </div>
@@ -156,7 +191,9 @@ export default function Trade() {
                             })
                         }} 
                     />
-                </div>    
+                </div>
+                {/* I want to delete this button */}
+                <button id="submit-trade">Proceed</button>    
             </form>
 
             <div className="estimate-header">
@@ -179,7 +216,7 @@ export default function Trade() {
                     </tr>
                 </table>
             </div>
-            <button id="submit-trade">Proceed</button>
+            <button id="submit-trade" onClick={() => makeTrade(event, quantity, stock, orderType)}>Proceed</button>
         </>
     )
 }

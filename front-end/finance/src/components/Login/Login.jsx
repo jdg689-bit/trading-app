@@ -4,7 +4,7 @@ import './Login.css';
 
 
 async function registerUser(credentials) {
-    // Send user credentials to backend and get back a unique user token
+    // Send user data to backend to be stored in database
     try {
         const response = await fetch('http://localhost:3000/register', {
             method : "POST",
@@ -13,16 +13,44 @@ async function registerUser(credentials) {
         });   
         
         if (!response.ok) {
-            throw new Error('Server response was not OK.')
+            if (response.status == 409) {
+                alert('That username is already taken');
+            } else {
+                throw new Error('Server response from /register was not OK.')
+            }
         }
 
-        const data = response.json();
+    } catch (error) {
+        console.error(`Error making fetch request: ${error}`);
+    }
+}
+
+async function loginUser(credentials) {
+    // Send user credentials to backend and recieve a unique token upon successful verification
+
+    try {
+        const response = await fetch('http://localhost:3000/login', {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(credentials)
+        });
+
+        if (!response.ok) {
+            if (response.status == 401) {
+                alert('Incorrect password');
+            } else {
+                throw new Error('Server response from /login was not OK.')
+            }
+        }
+
+        // This data is the token that the backend returns upon successful login
+        // The token allows the server to trust all requests recieved from this user
+        const data = await response.json();
         return data;
 
     } catch (error) {
         console.error(`Error making fetch request: ${error}`);
     }
-
 }
 
 
@@ -36,17 +64,27 @@ export default function Register({ setToken }) {
 
     const [loginClicked, setLoginClicked] = useState(false) // render alternative form if user clicks login instead of register
 
-    const handleSubmit = async (event) => {
+    const handleRegister = async (event) => {
         event.preventDefault();
     
-        const token = await registerUser({
+        await registerUser({
             firstName,
             lastName,
             email,
             username,
             password,
+            stockHoldings: {}
         });
-    
+    }
+
+    const handleLogin = async (event) => {
+        event.preventDefault();
+
+        const token = await loginUser({
+            username,
+            password,
+        });
+
         setToken(token);
     }
 
@@ -55,7 +93,7 @@ export default function Register({ setToken }) {
             <h1>Welcome to Nebula Trading</h1>
             <h2>Register an account to start trading today!</h2>
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={loginClicked ? handleLogin : handleRegister}>
                 {!loginClicked && 
                     <>
                         <div className="field-container">

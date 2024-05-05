@@ -40,11 +40,27 @@ async function verifyPassword(client, username, password) {
     // Check submitted password against database
     const storedPassword = user[0].password;
 
-    if (storedPassword == password) {
-        return true;
-    } else {
-        return false;
-    }
+    return storedPassword == password ? user[0]._id : null;
+}
+
+
+async function makeTrade(client, orderDetails) {
+    // Update user (identified by orderDetails.token)
+    // Destructure here
+    const stock = orderDetails.stock;
+    const qty = orderDetails.qty;
+    const userToken = orderDetails.token
+
+    // If user doesn't own any of this stock, create new entry
+    await client.db("trading_app").collection("user_info").updateOne(
+        {_id: userToken}, {$set: { "stock": stock, "quantity": qty }}
+    );
+
+
+
+    // Else increment existing
+    //  const result = await client.db("trading_app").collection("user_info").updateOne(
+    //     {"_id" : userToken, "stockHoldings.stock" : stock}, {$inc : {stockHoldings: {orderDetails.stock : orderDetails.quantity}}});
 }
 
 module.exports = {
@@ -52,6 +68,6 @@ module.exports = {
     addUser,
     lookUpUser,
     verifyPassword,
-
+    makeTrade,
 }
 
