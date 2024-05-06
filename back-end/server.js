@@ -85,18 +85,20 @@ app.post('/login', async (req, res) => {
 
 
 app.post('/make-trade', async (req, res) => {
-    // Just confirm order details were posted correctly for now
+    // Process buy and sell orders through the database
     const orderDetails = req.body;
-    console.log(orderDetails);
     
     // Connect to db
     const client = await db.connectToDB();
 
     // Update user's document
-    const tradeComplete = await db.makeTrade(client, orderDetails);
+    const tradeCompleted = await db.makeTrade(client, orderDetails);
 
-    // Make sure you change this later
-    res.status(200).send();
+    if (!tradeCompleted?.error) {
+        res.status(200).send();
+    } else {
+        res.status(422).send({error: tradeCompleted.message})
+    }
 })
 
 

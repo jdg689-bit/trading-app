@@ -101,6 +101,11 @@ async function makeTrade(event, quantity, stock, orderType) {
         });
 
         if (!response.ok) {
+            if (response?.status == 422) {
+                // Alert user of trade errors
+                const data = await response.json()
+                alert(data.error);
+            }
             throw new Error('Server response from /make-trade was not ok.')
         }
 
