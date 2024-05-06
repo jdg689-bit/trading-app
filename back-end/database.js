@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 require('dotenv').config();
 
 async function connectToDB() {
@@ -48,19 +48,46 @@ async function makeTrade(client, orderDetails) {
     // Update user (identified by orderDetails.token)
     // Destructure here
     const stock = orderDetails.stock;
-    const qty = orderDetails.qty;
-    const userToken = orderDetails.token
+    const qty = orderDetails.orderType == 'buy' ? +orderDetails.quantity : +orderDetails.quantity * -1;
+    const userToken = (orderDetails.token);
 
-    // If user doesn't own any of this stock, create new entry
-    await client.db("trading_app").collection("user_info").updateOne(
-        {_id: userToken}, {$set: { "stock": stock, "quantity": qty }}
+    console.log(`User token is ${userToken}`);
+
+    const tokenObject = new ObjectId(userToken);
+
+    // Does the account holder already own shares of this stock?
+    const result = await client.db("trading_app").collection("user_info").findOne(
+        {
+            _id: tokenObject,
+            "holdings.stock": stock
+        }
     );
-
-
-
-    // Else increment existing
-    //  const result = await client.db("trading_app").collection("user_info").updateOne(
-    //     {"_id" : userToken, "stockHoldings.stock" : stock}, {$inc : {stockHoldings: {orderDetails.stock : orderDetails.quantity}}});
+    
+    if (result) {
+        // Increment current holdings
+        await client.db("trading_app").collection("user_info").updateOne(
+            {
+                _id: tokenObject,
+                "holdings.stock": stock
+            },
+            {$inc: { "holdings.$.quantity": qty}}
+        )
+    } else {
+        // Add stock to holdings array
+        await client.db("trading_app").collection("user_info").updateOne(
+            {
+                _id: tokenObject
+            },
+            {
+                $push: {
+                    "holdings": {
+                        "stock": stock,
+                        "quantity": qty
+                    }
+                }
+            }
+        )
+    }
 }
 
 module.exports = {

@@ -42,6 +42,7 @@ app.post('/register', async (req, res) => {
             email: req.body.email,
             username: req.body.username,
             password: req.body.password,
+            holdings: [],
         }
 
         // See if username is already in use

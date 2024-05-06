@@ -1,14 +1,5 @@
 import { useState } from "react"
 
-// Demo suggestions to test autocomplete functionality since API request limit reached
-const DEMO_SUGGESTIONS = [
-    'WOOLWORTHS LIMITED',
-    'COMMONWEALTH BANK OF AUSTRALIA',
-    'APPLE',
-    'NETFLIX',
-    'TESLA',
-]
-
 async function companySearch(text, setSuggestions) {
     // Called when stock name input changes, offers autocomplete suggestions for company name
     // API request made directly from front-end
@@ -89,11 +80,16 @@ async function makeTrade(event, quantity, stock, orderType) {
     // For now this just changes the qty of a stock in the users mongo doc - account balance is not considered or updated
     event.preventDefault();
 
+    // Get token from browse
+    const sessionStorageToken = sessionStorage.token;
+    const parsedToken = JSON.parse(sessionStorageToken);
+    const token = parsedToken.token;
+
     const orderDetails = {
         quantity,
         stock,
         orderType, 
-        token: sessionStorage.token
+        token,
     }
 
     // Make fetch request to server.js
