@@ -1,0 +1,9 @@
+.holdings-table {
+    border: 1px solid black;
+    border-collapse: collapse;
+    text-align: center;
+}
+.holdings-table th, .holdings-table td {
+    border: 1px solid black;
+    padding: 3px 10px;
+}

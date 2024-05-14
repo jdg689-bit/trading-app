@@ -1,5 +1,6 @@
 const { MongoClient, ObjectId } = require('mongodb');
 require('dotenv').config();
+const {makeTrade} = require('./database-modules/tradeFunctions.js');
 
 
 async function connectToDB() {
@@ -44,76 +45,14 @@ async function verifyPassword(client, username, password) {
     return storedPassword == password ? user[0]._id : null;
 }
 
+async function getHoldings(client, token) {
+    // Get users stock holdings and balance
+    const tokenObject = new ObjectId(token);
 
-async function makeTrade(client, orderDetails) {
-    // Process user's buy/sell order by updating holdings embedded document
+    const user = await client.db("trading_app").collection("user_info").findOne({_id: tokenObject});
+    const holdings = {balance: user['balance'], holdings: user['holdings']};
 
-    // Destructure here
-    const stock = orderDetails.stock;
-    const qty = orderDetails.orderType == 'buy' ? +orderDetails.quantity : +orderDetails.quantity * -1;
-    const userToken = (orderDetails.token);
-
-    // Token must be ObjectID instance to work with mongo queries
-    const tokenObject = new ObjectId(userToken);
-
-    // Does user already own this stock? -> Find document where user id and holdings.stock match
-    const user = await client.db("trading_app").collection("user_info").findOne(
-        {
-            _id: tokenObject,
-            "holdings.stock": stock
-        }
-    );
-
-    if (!user && orderDetails.orderType == 'buy') {
-        // If no document found, user doesn't currently hold this stock
-        // Need to add new object to holdings array
-        await client.db("trading_app").collection("user_info").updateOne(
-            {
-                _id: tokenObject
-            },
-            {
-                $push: {
-                    "holdings": {
-                        "stock": stock,
-                        "quantity": qty
-                    }
-                }
-            }
-        )
-    } else {
-        // If user currently holds this stock, increment position quantity
-        try {
-            // Can't sell stock if not in portfolio
-            if (!user && orderDetails.orderType == 'sell') {
-                throw new Error(`${stock} is not currently held in your portfolio`);
-            }
-
-            // For sell orders, throw error is user is trying to sell more stock than owned
-            // user is the entire document
-            // use regular find() array method to find the relevant position
-            const userPosition = user.holdings.find((element) => element.stock == stock);
-
-            if (orderDetails.orderType == 'sell' && userPosition.quantity < qty * -1) {
-                throw new Error(`Requested sell quantity for ${stock} exceeds current position`);
-            }
-            
-            // Increment current holdings
-            await client.db("trading_app").collection("user_info").updateOne(
-                {
-                    _id: tokenObject,
-                    "holdings.stock": stock
-                },
-                {$inc: { "holdings.$.quantity": qty}}
-            )
-
-        } catch (error) {
-            return ({
-                error: true,
-                errorType: "TradeError",
-                message: error.message,
-            });
-        }
-    }
+    return holdings;
 }
 
 module.exports = {
@@ -122,5 +61,6 @@ module.exports = {
     lookUpUser,
     verifyPassword,
     makeTrade,
+    getHoldings,
 }
 

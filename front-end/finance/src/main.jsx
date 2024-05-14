@@ -5,7 +5,7 @@ import './index.css';
 import Root from './components/Root'
 import Quote from './components/Quote'
 import Trade from './components/Trade'
-import Portfolio from './components/Portfolio';
+import Portfolio from './components/Portfolio/Portfolio';
 
 // Configure root route
 const router = createBrowserRouter([

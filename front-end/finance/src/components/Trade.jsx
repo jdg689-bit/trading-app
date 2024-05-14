@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useState, useEffect } from "react";
+import updateTrade from "./updateTrade";
 
 async function companySearch(text, setSuggestions) {
     // Called when stock name input changes, offers autocomplete suggestions for company name
@@ -36,14 +37,14 @@ async function getStockPrice(symbol, setStockPrice) {
             throw new Error('Server response was not OK');
         }
         const lastPrice = await response.json();
-        setStockPrice(lastPrice.closing);
+        setStockPrice(Number(lastPrice.closing));
     } catch (error) {
         console.error(`There was an error with the getStockPrice fetch request: ${error}`)
     }
 }
 
 
-function AutoSuggestions({ suggestions, setStock, setShowSuggestions, setStockPrice }) {
+function AutoSuggestions({ suggestions, setStock, setShowSuggestions, setStockPrice}) {
     // Renders dropdown autocomplete suggestions based off of matching companies in the API
 
     // On first render, suggestions is an empty string. Trying to call .map on empty string = error
@@ -67,7 +68,7 @@ function AutoSuggestions({ suggestions, setStock, setShowSuggestions, setStockPr
                 </li>
             )
         })
-    
+
         return (
             <ul id="company-suggestions">{listItems}</ul>
         )
@@ -75,22 +76,17 @@ function AutoSuggestions({ suggestions, setStock, setShowSuggestions, setStockPr
 }
 
 
-async function makeTrade(event, quantity, stock, orderType) {
+async function makeTrade(orderDetails) {
     // Execute a buy or sell order
     // For now this just changes the qty of a stock in the users mongo doc - account balance is not considered or updated
-    event.preventDefault();
+    orderDetails.event.preventDefault();
 
-    // Get token from browse
+    // Get token from browser
     const sessionStorageToken = sessionStorage.token;
     const parsedToken = JSON.parse(sessionStorageToken);
     const token = parsedToken.token;
 
-    const orderDetails = {
-        quantity,
-        stock,
-        orderType, 
-        token,
-    }
+    orderDetails.token = token;
 
     // Make fetch request to server.js
     try {
@@ -109,25 +105,45 @@ async function makeTrade(event, quantity, stock, orderType) {
             throw new Error('Server response from /make-trade was not ok.')
         }
 
-        // Notify user of successful trade
-        alert(`Successfully ${orderType == 'buy' ? 'bought' : 'sold'} ${quantity} shares of ${stock}`)
+        const data = await response.json()
+        alert(data.message);
+
 
     } catch (error) {
-        console.error(`Error making fetch request: ${error}`);
+        console.error(`Error making /trade fetch request: ${error}`);
     }
 }
 
 
 
-export default function Trade({ token }) {
+export default function Trade() {
     const [stock, setStock] = useState('');
     const [suggestions, setSuggestions] = useState(''); // This is for the autocomplete feature
     const [showSuggestions, setShowSuggestions] = useState(true); // Show or hide the autocomplete options on click
     const [stockPrice, setStockPrice] = useState(0); // Save price of selected stock, get total when qty is entered
     const [quantity, setQuantity] = useState('');
-    const [orderType, setOrderType] = useState('');
-    const [orderValue, setOrderValue] = useState((0).toFixed(2));
-    const [brokerageFee, setBrokerageFee] = useState((0).toFixed(2));
+    const [orderType, setOrderType] = useState('buy'); // BUY checked by default
+    const [orderValue, setOrderValue] = useState(0);
+    const [brokerageFee, setBrokerageFee] = useState(0);
+    const [orderTotal, setOrderTotal] = useState(0);
+
+    // Organise effect parameters
+    const effectValues = {
+        stockPrice,
+        quantity,
+        orderType,
+        brokerageFee,
+    };
+
+    const effectSetStates = {
+        setOrderValue,
+        setBrokerageFee,
+        setOrderTotal,
+    }
+
+    useEffect(() => {
+        updateTrade(effectValues, effectSetStates);
+    }, [stockPrice, quantity, orderType]); // Call useEffect if any of these dependencies change
 
     return (
         <>
@@ -159,10 +175,21 @@ export default function Trade({ token }) {
                     <label htmlFor="order-type">Order Type: </label>
                     <div id="order-type" style={{display:"inline-block"}}>
 
-                            <input type="radio" id="buy" onClick={() => setOrderType('buy')}></input>
+                            <input 
+                                type="radio" 
+                                id="buy" 
+                                name="order-type"
+                                defaultChecked={true} 
+                                onClick={() => setOrderType('buy')}
+                            ></input>
                             <label htmlFor="buy" style={{color:"green"}}>BUY</label>
 
-                            <input type="radio" id="sell" onClick={() => setOrderType('sell')}></input>
+                            <input 
+                                type="radio" 
+                                id="sell" 
+                                name="order-type" 
+                                onClick={() => setOrderType('sell')}
+                                ></input>
                             <label htmlFor="buy" style={{color:"red"}}>SELL</label>
                     </div>
                 </div>
@@ -172,29 +199,9 @@ export default function Trade({ token }) {
                         type="number"
                         id="quantity"
                         value={quantity}
-                        onChange={event => {
-                            setQuantity(event.target.value);
-                            setOrderValue((event.target.value * stockPrice).toFixed(2));
-                            setBrokerageFee(() => {
-                                const orderValue = event.target.value * stockPrice;
-                                // Set brokerage amount based on transaction value
-                                if (orderValue > 25000) {
-                                    return (orderValue * 0.12).toFixed(2);
-                                } else if (orderValue <= 25000 && orderValue > 10000) {
-                                    return 29.95;
-                                } else if (orderValue <= 10000 && orderValue > 3000) {
-                                    return 19.95;
-                                } else if (orderValue <= 3000 && orderValue > 1000) {
-                                    return 10.00.toFixed(2);
-                                } else {
-                                    return 5.00.toFixed(2);
-                                }
-                            })
-                        }} 
+                        onChange={(event) => setQuantity(event.target.value)} 
                     />
-                </div>
-                {/* I want to delete this button */}
-                <button id="submit-trade">Proceed</button>    
+                </div> 
             </form>
 
             <div className="estimate-header">
@@ -203,21 +210,38 @@ export default function Trade({ token }) {
 
             <div className="order-details-container">
                 <table className="order-details">
-                    <tr>
-                        <th><b>Order Value ($):</b></th>
-                        <td>{orderValue}</td>
-                    </tr>
-                    <tr>
-                        <th><b>Brokerage & Cost ($):</b></th>
-                        <td>{brokerageFee}</td>
-                    </tr>
-                    <tr>
-                        <th><b>Total ($):</b></th>
-                        <td className="total">{(Number(orderValue) + Number(brokerageFee)).toFixed(2)}</td>
-                    </tr>
+                    <tbody>
+                        <tr>
+                            <th><b>Market Price ($):</b></th>
+                            <td>{stockPrice.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <th><b>Order Value ($):</b></th>
+                            <td>{orderValue.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <th><b>Brokerage & Cost ($):</b></th>
+                            <td>{brokerageFee.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <th><b>Total ($):</b></th>
+                            <td className="total">{orderTotal.toFixed(2)}</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
-            <button id="submit-trade" onClick={() => makeTrade(event, quantity, stock, orderType)}>Proceed</button>
+            <button id="submit-trade" onClick={() => {
+                const orderDetails = {
+                    event,
+                    stock,
+                    stockPrice,
+                    quantity,
+                    orderType,
+                    orderTotal,
+                }
+                makeTrade(orderDetails)
+                }}
+            >Proceed</button>
         </>
     )
 }

@@ -4,7 +4,8 @@ import './Login.css';
 
 
 async function registerUser(credentials) {
-    // Send user data to backend to be stored in database
+    // Create user document in db using form data
+
     try {
         const response = await fetch('http://localhost:3000/register', {
             method : "POST",
@@ -19,14 +20,15 @@ async function registerUser(credentials) {
                 throw new Error('Server response from /register was not OK.')
             }
         }
-
     } catch (error) {
-        console.error(`Error making fetch request: ${error}`);
+        console.error(`Error making /register fetch request: ${error}`);
     }
 }
 
+
 async function loginUser(credentials) {
-    // Send user credentials to backend and recieve a unique token upon successful verification
+    // Verify that username and password match an existing db document
+    // Use document ObjectId to create sessionStorage token -> keeps user logged in across pages
 
     try {
         const response = await fetch('http://localhost:3000/login', {
@@ -43,13 +45,12 @@ async function loginUser(credentials) {
             }
         }
 
-        // This data is the token that the backend returns upon successful login
-        // The token allows the server to trust all requests recieved from this user
-        const data = await response.json();
-        return data;
+        // Token allows the server to trust all requests recieved from this user
+        const token = await response.json();
+        return token;
 
     } catch (error) {
-        console.error(`Error making fetch request: ${error}`);
+        console.error(`Error making /login fetch request: ${error}`);
     }
 }
 
@@ -62,9 +63,11 @@ export default function Register({ setToken }) {
     const [username, setUsername] = useState(''); 
     const [password, setPassword] = useState('');
 
-    const [loginClicked, setLoginClicked] = useState(false) // render alternative form if user clicks login instead of register
+    const [loginClicked, setLoginClicked] = useState(false) // render alternate form if user clicks login instead of register
 
     const handleRegister = async (event) => {
+        // Submit form data to server
+
         event.preventDefault();
     
         await registerUser({
@@ -73,7 +76,8 @@ export default function Register({ setToken }) {
             email,
             username,
             password,
-            stockHoldings: {}
+            stockHoldings: {}, 
+            funds: 10_000, // Start user with $10_000 by default 
         });
     }
 
@@ -88,62 +92,87 @@ export default function Register({ setToken }) {
         setToken(token);
     }
 
+
+    const switchForm = () => {
+        // Cycle between register and login forms
+        // Reset states of controlled inputs so form data doesn't persist
+        setLoginClicked(!loginClicked);
+        setFirstName('');
+        setLastName('');
+        setEmail('');
+        setUsername('');
+        setPassword('');
+    }
+
+    // Page content
     return (
         <>
             <h1>Welcome to Nebula Trading</h1>
             <h2>Register an account to start trading today!</h2>
 
             <form onSubmit={loginClicked ? handleLogin : handleRegister}>
+                {/* If returning user is logging in, not all fields are required */}
                 {!loginClicked && 
                     <>
+                        <p>Fields marked with * are requried</p>
                         <div className="field-container">
-                            <label htmlFor="first-name">First Name: </label>
+                            <label htmlFor="first-name">First Name*: </label>
                                 <input 
                                     type="text" 
-                                    id="first-name" 
+                                    id="first-name"
+                                    value={firstName}
                                     onChange={(event) => setFirstName(event.target.value)}
+                                    required
                                 />
                         </div>
                         <div className="field-container">
-                            <label htmlFor="last-name">Last Name: </label>
+                            <label htmlFor="last-name">Last Name*: </label>
                                 <input 
                                     type="text" 
                                     id="last-name" 
+                                    value={lastName}
                                     onChange={(event) => setLastName(event.target.value)}
+                                    required
                                 />
                         </div>
                         <div className="field-container">
-                            <label htmlFor="email">Email: </label>
+                            <label htmlFor="email">Email*: </label>
                                 <input 
                                     type="email" 
                                     id="email" 
+                                    value={email}
                                     onChange={(event) => setEmail(event.target.value)}
+                                    required
                                 />
                         </div>
                     </>
                 }
                 <div className="field-container">
-                    <label htmlFor="username">Username: </label>
+                    <label htmlFor="username">Username*: </label>
                         <input 
                             type="text" 
                             id="username" 
+                            value={username}
                             onChange={(event) => setUsername(event.target.value)}
+                            required
                         />
                 </div>
                 <div className="field-container">
-                    <label htmlFor="password">Password: </label>
+                    <label htmlFor="password">Password*: </label>
                         <input 
                             type="password" 
                             id="password" 
+                            value={password}
                             onChange={(event) => setPassword(event.target.value)}
+                            required
                         />
                 </div>
                 <button type="submit">{loginClicked ? 'Log In' : 'Register'}</button>
 
                 {!loginClicked ?
-                    <div>Already registered? Click <a className="login-link" onClick={() => setLoginClicked(true)}>here</a> to log in</div>
+                    <div>Already registered? Click <a className="login-link" onClick={() => switchForm()}>here</a> to log in</div>
                     :
-                    <div>Don't have an account? Click <a className="login-link" onClick={() => setLoginClicked(false)}>here</a> to register</div>
+                    <div>Don't have an account? Click <a className="login-link" onClick={() => switchForm()}>here</a> to register</div>
 
                 }                
             </form>

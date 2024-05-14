@@ -7,7 +7,7 @@ const port = 3000;
 // SET UP
 
 // database functions
-const db = require('./database');
+const db = require('./database.js');
 
 // For API key
 require('dotenv').config({path:path.join(__dirname, '../', '.env')});
@@ -92,10 +92,17 @@ app.post('/make-trade', async (req, res) => {
     const client = await db.connectToDB();
 
     // Update user's document
+    // db.makeTrade returns object with following structure
+    /*
+    {
+        error: true/false,
+        message: error description
+    }
+    */
     const tradeCompleted = await db.makeTrade(client, orderDetails);
 
     if (!tradeCompleted?.error) {
-        res.status(200).send();
+        res.status(200).send({message: tradeCompleted.message});
     } else {
         res.status(422).send({error: tradeCompleted.message})
     }
@@ -153,6 +160,60 @@ app.post('/autocomplete', async (req, res) => {
     }
 
     // res.send('') // Send response regardless of try/catch outcome
+})
+
+
+app.post('/holdings', async (req, res) => {
+    // Make database request for the relevant users' document
+    // Return an object with info on current positions
+
+    // Retrieve token from request body
+    const token = req.body['token'];
+    
+    // Connect to database
+    const client = await db.connectToDB();
+
+    // Find embedded holdings document within user doc
+    const holdings = await db.getHoldings(client, token);
+
+    res.status(200).send(JSON.stringify(holdings));
+})
+
+
+app.post('/get-prices', async (req, res) => {
+    // User is accessing portfolio and needs current prices of all stocks held
+    // POST request includes array of all portfolio stock tickers
+    // RESPOND with prices
+    const data = req.body;
+
+
+    // Iterate over stock tickers, making db request for last price
+    try {
+        const lastPrices = await Promise.all(data.map(async (stock) => { // use Promise.all to await all fetch requests called in map
+
+            const response = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${stock}&interval=5min&apikey=${process.env.API_ACCESS_KEY}`, {
+                method: "GET",
+            })
+        
+            if (!response.ok) {
+                throw new Error('Failed API fetch request');
+            }
+    
+            // This code is the same as /quote -> can probably DRY this up
+            const data = await response.json();
+            const lastTimestamp = Object.keys(data['Time Series (5min)'])[0];
+            const lastClosePrice = data['Time Series (5min)'][lastTimestamp]['4. close'];
+    
+            const lastPrice = {stock: stock, price: Number(lastClosePrice)};
+    
+            return lastPrice;
+        }));
+    
+        res.send(JSON.stringify(lastPrices));
+
+    } catch (error) {
+        console.error(`Error retrieveing most recent price info: ${error}`);
+    }
 })
 
 
