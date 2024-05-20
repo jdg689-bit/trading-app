@@ -73,13 +73,21 @@ app.post('/login', async (req, res) => {
     const loginUser = req.body.username;
     const loginPassword = req.body.password;
 
-    const sessionToken = await db.verifyPassword(client, loginUser, loginPassword);
-    if (sessionToken) {
-        res.send({token: sessionToken});
+    // Check username exists
+    const userExists = await db.lookUpUser(client, loginUser);
+    if (!userExists) {
+        res.status(401).send({error: 'Username does not exist'});
     }
     else {
-        console.log('Incorrect password');
-        res.status(401).send({error: 'Incorrect password'});
+        // Verify password for existing user
+        const sessionToken = await db.verifyPassword(client, loginUser, loginPassword);
+        if (sessionToken) {
+            res.send({token: sessionToken});
+        }
+        else {
+            console.log('Incorrect password');
+            res.status(401).send({error: 'Incorrect password'});
+        }
     }
 })
 

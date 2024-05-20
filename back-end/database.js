@@ -36,13 +36,23 @@ async function lookUpUser(client, username) {
 
 
 async function verifyPassword(client, username, password) {
-    // Find user
-    const user = await client.db("trading_app").collection("user_info").find({ username: username}).toArray();
+    try {
+        // Find user
+        const user = await client.db("trading_app").collection("user_info").find({ username: username}).toArray();
 
-    // Check submitted password against database
-    const storedPassword = user[0].password;
+        // User doesn't exist
+        if (!user) {
+            throw new Error('Username does not exist.');
+        }
 
-    return storedPassword == password ? user[0]._id : null;
+        // Check password is correct
+        const storedPassword = user[0].password;
+
+        return storedPassword == password ? user[0]._id : null;
+
+    } catch (error) {
+        console.error(`Error verifying password: ${error}`);
+    }
 }
 
 async function getHoldings(client, token) {

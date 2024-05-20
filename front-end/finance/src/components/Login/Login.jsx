@@ -37,17 +37,19 @@ async function loginUser(credentials) {
             body: JSON.stringify(credentials)
         });
 
+
+        const data = await response.json();
+
         if (!response.ok) {
             if (response.status == 401) {
-                alert('Incorrect password');
+                alert(data.error);
             } else {
                 throw new Error('Server response from /login was not OK.')
             }
         }
 
         // Token allows the server to trust all requests recieved from this user
-        const token = await response.json();
-        return token;
+        return data;
 
     } catch (error) {
         console.error(`Error making /login fetch request: ${error}`);
@@ -89,7 +91,9 @@ export default function Register({ setToken }) {
             password,
         });
 
-        setToken(token);
+        if (token) {
+            setToken(token);
+        }
     }
 
 
