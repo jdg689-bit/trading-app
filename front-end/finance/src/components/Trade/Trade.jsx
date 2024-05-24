@@ -147,101 +147,103 @@ export default function Trade() {
 
     return (
         <>
-            <form id="order-form">
-                <div className="field-container">
-                    <label htmlFor="stock">Code: </label>
-                    <input 
-                        type="text" 
-                        id="stock" 
-                        placeholder="Start typing company name or stock ticker"
-                        value={stock}
-                        onChange={(event) => {
-                            setStock(event.target.value);
-                            setShowSuggestions(true);
-                            companySearch(event.target.value, setSuggestions);
-                        }}
-                        style={{width: "250px"}} 
-                    />
-                    {showSuggestions && (
-                        <AutoSuggestions 
-                        suggestions={suggestions}
-                        setShowSuggestions={setShowSuggestions}
-                        setStock={setStock}
-                        setStockPrice={setStockPrice}
+            <div id="trade-page-container">
+                <form id="order-form">
+                    <div className="field-container">
+                        <label htmlFor="stock">Code: </label>
+                        <input 
+                            type="text" 
+                            id="stock" 
+                            placeholder="Start typing company name or stock ticker"
+                            value={stock}
+                            onChange={(event) => {
+                                setStock(event.target.value);
+                                setShowSuggestions(true);
+                                companySearch(event.target.value, setSuggestions);
+                            }}
+                            style={{width: "250px"}} 
                         />
-                    )}
-                </div>
-                <div className="field-container">
-                    <label htmlFor="order-type">Order Type: </label>
-                    <div id="order-type" style={{display:"inline-block"}}>
-
-                            <input 
-                                type="radio" 
-                                id="buy" 
-                                name="order-type"
-                                defaultChecked={true} 
-                                onClick={() => setOrderType('buy')}
-                            ></input>
-                            <label htmlFor="buy" style={{color:"green"}}>BUY</label>
-
-                            <input 
-                                type="radio" 
-                                id="sell" 
-                                name="order-type" 
-                                onClick={() => setOrderType('sell')}
-                                ></input>
-                            <label htmlFor="buy" style={{color:"red"}}>SELL</label>
+                        {showSuggestions && (
+                            <AutoSuggestions 
+                            suggestions={suggestions}
+                            setShowSuggestions={setShowSuggestions}
+                            setStock={setStock}
+                            setStockPrice={setStockPrice}
+                            />
+                        )}
                     </div>
+                    <div className="field-container">
+                        <label htmlFor="order-type">Order Type: </label>
+                        <div id="order-type" style={{display:"inline-block"}}>
+
+                                <input 
+                                    type="radio" 
+                                    id="buy" 
+                                    name="order-type"
+                                    defaultChecked={true} 
+                                    onClick={() => setOrderType('buy')}
+                                ></input>
+                                <label htmlFor="buy" style={{color:"green"}}>BUY</label>
+
+                                <input 
+                                    type="radio" 
+                                    id="sell" 
+                                    name="order-type" 
+                                    onClick={() => setOrderType('sell')}
+                                    ></input>
+                                <label htmlFor="buy" style={{color:"red"}}>SELL</label>
+                        </div>
+                    </div>
+                    <div className="field-container">
+                        <label htmlFor="quantity">Quantity: </label>
+                        <input 
+                            type="number"
+                            id="quantity"
+                            value={quantity}
+                            onChange={(event) => setQuantity(event.target.value)} 
+                        />
+                    </div> 
+                </form>
+
+                <div className="estimate-header">
+                    <p><b>Order Estimate</b></p>
                 </div>
-                <div className="field-container">
-                    <label htmlFor="quantity">Quantity: </label>
-                    <input 
-                        type="number"
-                        id="quantity"
-                        value={quantity}
-                        onChange={(event) => setQuantity(event.target.value)} 
-                    />
-                </div> 
-            </form>
 
-            <div className="estimate-header">
-                <p><b>Order Estimate</b></p>
+                <div className="order-details-container">
+                    <table className="order-details">
+                        <tbody>
+                            <tr>
+                                <th><b>Market Price ($):</b></th>
+                                <td>{stockPrice.toFixed(2)}</td>
+                            </tr>
+                            <tr>
+                                <th><b>Order Value ($):</b></th>
+                                <td>{orderValue.toFixed(2)}</td>
+                            </tr>
+                            <tr>
+                                <th><b>Brokerage & Cost ($):</b></th>
+                                <td>{brokerageFee.toFixed(2)}</td>
+                            </tr>
+                            <tr>
+                                <th><b>Total ($):</b></th>
+                                <td className="total">{orderTotal.toFixed(2)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button id="submit-trade" onClick={() => {
+                    const orderDetails = {
+                        event,
+                        stock,
+                        stockPrice,
+                        quantity,
+                        orderType,
+                        orderTotal,
+                    }
+                    makeTrade(orderDetails)
+                    }}
+                >Proceed</button>  
             </div>
-
-            <div className="order-details-container">
-                <table className="order-details">
-                    <tbody>
-                        <tr>
-                            <th><b>Market Price ($):</b></th>
-                            <td>{stockPrice.toFixed(2)}</td>
-                        </tr>
-                        <tr>
-                            <th><b>Order Value ($):</b></th>
-                            <td>{orderValue.toFixed(2)}</td>
-                        </tr>
-                        <tr>
-                            <th><b>Brokerage & Cost ($):</b></th>
-                            <td>{brokerageFee.toFixed(2)}</td>
-                        </tr>
-                        <tr>
-                            <th><b>Total ($):</b></th>
-                            <td className="total">{orderTotal.toFixed(2)}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <button id="submit-trade" onClick={() => {
-                const orderDetails = {
-                    event,
-                    stock,
-                    stockPrice,
-                    quantity,
-                    orderType,
-                    orderTotal,
-                }
-                makeTrade(orderDetails)
-                }}
-            >Proceed</button>
         </>
     )
 }

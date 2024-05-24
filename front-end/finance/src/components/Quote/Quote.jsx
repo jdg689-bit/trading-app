@@ -5,7 +5,7 @@ function PriceInfo({quoteMade, stock, price}) {
     if (quoteMade) {
         return (
             <>
-                <div>{`${stock} is currently priced at $${price} per share.`}</div>
+                <p>{`${stock} is currently priced at $${price} per share.`}</p>
             </>
         );
     } else {
@@ -33,18 +33,28 @@ export default function Quote() {
         */
 
         // POST stock to back end -> back end will GET stock data from API and return
-        const response = await fetch('http://www.localhost:3000/quote', {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({"stock": stock})
-        });
+        try {
+            const response = await fetch('http://www.localhost:3000/quote', {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({"stock": stock})
+            });
+    
+            if (!response.ok) {
+                if (response.status == 400) { // user has typed an invalid stock symbol
+                    alert(`Could not find ${stock} in our database.`)
+                }
 
-        if (response.ok) {
+                throw new Error(`Server response from /quote was not ok.`)
+            }
+
             const data = await response.json();
             setPrice(data['closing']);
             setQuoteMade(true); // Triggers render of PriceInfo component
-        }
 
+        } catch (error) {
+            console.error(`Error quoting stock price: ${error}`);
+        }
     }
 
     
@@ -55,12 +65,14 @@ export default function Quote() {
                     type="text" 
                     id="ticker" 
                     value={stock}
-                    onChange={(e) => setStock(e.target.value)} 
+                    onChange={(e) => {
+                        setStock(e.target.value)
+                        setQuoteMade(false);
+                    }} 
                 />
                 <button onClick={handleSubmit}>Get Quote</button>
             </form>
 
-            {/* Probably a better way to render PriceInfo without rendering the whole page again */}
             <PriceInfo
                 quoteMade={quoteMade}
                 stock={stock}

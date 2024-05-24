@@ -12,6 +12,16 @@ a, a:visited {
     text-decoration: none;
 }
 
+/* General */
+h1, h2 {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+}
+a {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
 /* Trade page */
 #company-suggestions {
     position: relative;
@@ -54,4 +64,41 @@ th {
     margin: 10px;
     background-color: gold;
     border-radius: 4px;
+}
+
+/* Login/Registration Page */
+.login label {
+    width: 100px;
+    float: left;
+    text-align: right;
+    padding-right: 10px;
+}
+form.login {
+    border: 1px solid black;
+    margin-top: 30px;
+    background-color: rgb(220, 220, 220);
+    width: 30%;
+    margin: auto;
+}
+.login button {
+    width: 100px;
+    display: block;
+    margin: auto
+}
+p.change-form {
+    text-align: center;
+}
+.login.field-container {
+    padding-left: 40px;
+}
+.required-text {
+    text-align: center;
+    font-style: italic;
+    margin-bottom: 25px;
+}
+
+/* Trade Page */
+#trade-page-container {
+    padding-left: 15px;
+    padding-top: 1px;
 }

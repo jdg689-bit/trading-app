@@ -43,6 +43,7 @@ app.post('/register', async (req, res) => {
             username: req.body.username,
             password: req.body.password,
             holdings: [],
+            balance: 10_000 // Start user with $10_000
         }
 
         // See if username is already in use
@@ -133,10 +134,15 @@ app.post('/quote', async (req, res) => {
     // View alphavantage docs for specifics about structure of response object
     // Interested in getting the last available price only
     const data = await response.json();
-    const lastTimestamp = Object.keys(data['Time Series (5min)'])[0];
-    const lastClosePrice = data['Time Series (5min)'][lastTimestamp]['4. close'];
-
-    res.send(JSON.stringify({"closing": lastClosePrice}));
+    console.log(data)
+    if (data['Error Message']) {
+        res.status(400).send(); // 400 = Bad Request
+    } else {
+        const lastTimestamp = Object.keys(data['Time Series (5min)'])[0];
+        const lastClosePrice = data['Time Series (5min)'][lastTimestamp]['4. close'];
+    
+        res.send(JSON.stringify({"closing": lastClosePrice}));
+    }
 })
 
 

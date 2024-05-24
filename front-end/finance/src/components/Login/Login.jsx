@@ -1,6 +1,5 @@
 import {React, useState} from "react";
 import PropTypes from 'prop-types';
-import './Login.css';
 
 
 async function registerUser(credentials) {
@@ -20,6 +19,9 @@ async function registerUser(credentials) {
                 throw new Error('Server response from /register was not OK.')
             }
         }
+
+        alert(`New user ${credentials.username} created successfully!`);
+
     } catch (error) {
         console.error(`Error making /register fetch request: ${error}`);
     }
@@ -71,6 +73,8 @@ export default function Register({ setToken }) {
         // Submit form data to server
 
         event.preventDefault();
+
+        clearInputs(); // Remove user data from controlled inputs
     
         await registerUser({
             firstName,
@@ -78,8 +82,6 @@ export default function Register({ setToken }) {
             email,
             username,
             password,
-            stockHoldings: {}, 
-            funds: 10_000, // Start user with $10_000 by default 
         });
     }
 
@@ -99,8 +101,12 @@ export default function Register({ setToken }) {
 
     const switchForm = () => {
         // Cycle between register and login forms
-        // Reset states of controlled inputs so form data doesn't persist
         setLoginClicked(!loginClicked);
+        clearInputs();
+    }
+
+    const clearInputs = () => {
+        // Reset states of controlled inputs so form data doesn't persist
         setFirstName('');
         setLastName('');
         setEmail('');
@@ -111,14 +117,14 @@ export default function Register({ setToken }) {
     // Page content
     return (
         <>
-            <h1>Welcome to Nebula Trading</h1>
+            <h1>Welcome to AusBank Trading</h1>
             <h2>Register an account to start trading today!</h2>
 
-            <form onSubmit={loginClicked ? handleLogin : handleRegister}>
+            <form className="login" onSubmit={loginClicked ? handleLogin : handleRegister}>
                 {/* If returning user is logging in, not all fields are required */}
+                <p className="required-text">Fields marked with * are requried</p>
                 {!loginClicked && 
                     <>
-                        <p>Fields marked with * are requried</p>
                         <div className="field-container">
                             <label htmlFor="first-name">First Name*: </label>
                                 <input 
@@ -174,9 +180,9 @@ export default function Register({ setToken }) {
                 <button type="submit">{loginClicked ? 'Log In' : 'Register'}</button>
 
                 {!loginClicked ?
-                    <div>Already registered? Click <a className="login-link" onClick={() => switchForm()}>here</a> to log in</div>
+                    <p className="change-form">Already registered? Click <a className="login-link" onClick={() => switchForm()}>here</a> to log in</p>
                     :
-                    <div>Don't have an account? Click <a className="login-link" onClick={() => switchForm()}>here</a> to register</div>
+                    <p className="change-form">Don't have an account? Click <a className="login-link" onClick={() => switchForm()}>here</a> to register</p>
 
                 }                
             </form>

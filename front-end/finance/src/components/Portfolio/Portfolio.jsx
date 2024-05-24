@@ -1,5 +1,6 @@
 import { React, useEffect, useState } from "react";
 import './Portfolio.css';
+import { Link } from "react-router-dom";
 
 async function getHoldings() {
     // Request portfolio information from server
@@ -60,7 +61,6 @@ export default function Portfolio() {
 
     const [portfolio, setPortfolio] = useState(null);
     const [latestPrices, setLatestPrices] = useState(null);
-    
 
     useEffect(() => {
         // Get portfolio from database, use effect hook to handle async behaviour
@@ -85,6 +85,7 @@ export default function Portfolio() {
 
         if (portfolio) { // Don't execute on initial render; portfolio == null
             async function fetchLastPrices() {
+                // API request for current stock prices
                 
                 try {
                     const stocksHeld = portfolio.holdings.map(holding => holding.stock);
@@ -135,10 +136,18 @@ export default function Portfolio() {
     return (
         <>
             <h2>Portfolio</h2>
-            <div className="balance">
-                <p><b>Current Cash Balance:</b> ${portfolio?.balance.toFixed(2)}</p>
-            </div>
             <table className="holdings-table">
+                <thead>
+                    <tr>
+                        <th className="empty"></th>
+                        <th className="empty"></th>
+                        <th className="empty"></th>
+                        <th className="empty"></th>
+                        <th className="empty"></th>
+                        <th>CASH $</th>
+                        <th>{portfolio?.balance.toFixed(2)}</th>
+                    </tr>
+                </thead>
                 <thead>
                     <tr>
                         <th>CODE</th>
@@ -156,7 +165,13 @@ export default function Portfolio() {
             </table>
 
             {!portfolio && 
-                <div className="load-screen">LOADING...</div>}
+                <div className="loading-table">LOADING...</div>}
+
+            {portfolio?.holdings.length == 0 &&
+                <div className="no-holdings">
+                    <p>You don't hold any positions. Visit <Link to={'/trade'}>Trade</Link> to make a trade.</p>
+                </div>
+            }
         </>
     )
 }

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Outlet, Link } from 'react-router-dom';
-import Register from './Login/Login.jsx';
-import useToken from './useToken';
+import Register from '../Login/Login.jsx';
+import useToken from '../useToken.js';
+import Portfolio from '../Portfolio/Portfolio.jsx';
 
 
 export default function App() {
@@ -18,16 +19,13 @@ export default function App() {
             <nav>
                 <ul>
                     <li>
-                        <Link to={'/'}>Home</Link>
-                    </li>
-                    <li>
-                        <Link to={'/quote'}>Quote</Link>
+                        <Link to={'/portfolio'}>Portfolio</Link>
                     </li>
                     <li>
                         <Link to={'/trade'}>Trade</Link>
                     </li>
                     <li>
-                        <Link to={'/portfolio'}>Portfolio</Link>
+                        <Link to={'/quote'}>Quote</Link>
                     </li>
                 </ul>
             </nav>
