@@ -39,11 +39,11 @@ const router = createBrowserRouter([
 ]);
 */
 
-const App = () => {
+const App = () => (
   <HashRouter>
     <Root />
   </HashRouter>
-};
+);
 
 
 ReactDOM.createRoot(document.getElementById('root')).render(
