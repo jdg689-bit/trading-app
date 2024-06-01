@@ -5,6 +5,7 @@ const {makeTrade} = require('./database-modules/tradeFunctions.js');
 
 async function connectToDB() {
     console.log('Connecting...'); // Remove after testing
+    console.log(process.env.MONGO_DB_PWORD);
 
     const uri = `mongodb+srv://myAtlasDBUser:${process.env.MONGO_DB_PWORD}@myatlasclusteredu.fz0pefl.mongodb.net/?retryWrites=true&w=majority&appName=myAtlasClusterEDU`
 
