@@ -1,8 +1,8 @@
 {
-    "name": "trading-app",
+    "name": "heroku-backend",
     "version": "1.0.0",
+    "main": "server.js",
     "scripts": {
-        "start": "node back-end/server.js",
-        "heroku-postbuild": "npm install --prefix front-end && npm run build --prefix frontend"
+    }, "dependencies": {
     }
 }
