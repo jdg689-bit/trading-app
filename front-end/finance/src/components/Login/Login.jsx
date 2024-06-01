@@ -6,7 +6,7 @@ async function registerUser(credentials) {
     // Create user document in db using form data
 
     try {
-        const response = await fetch('https://git.heroku.com/trading-platform.git/register', {
+        const response = await fetch('https://trading-platform-e1f89da02b4b.herokuapp.com/register', {
             method : "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(credentials)
