@@ -16,7 +16,7 @@ require('dotenv').config({path:path.join(__dirname, '../', '.env')});
 const cors = require('cors');
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: 'https://jdg689-bit.github.io',
     methods: ['GET', 'POST']
 }));
 
