@@ -13,6 +13,8 @@ const db = require('./database.js');
 require('dotenv').config({path:path.join(__dirname, '../', '.env')});
 
 // Configure cors
+app.use(cors());
+/*
 app.use(cors({
     origin: 'https://jdg689-bit.github.io',
     methods: ['GET', 'POST'],
@@ -28,6 +30,7 @@ app.options('*', cors({
 
 // Cofigure json parsing
 app.use(express.json());
+*/
 // **********************************************
 
 app.get('/', (req, res) => {
