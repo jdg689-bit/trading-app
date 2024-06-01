@@ -17,7 +17,8 @@ const cors = require('cors');
 
 app.use(cors({
     origin: 'https://jdg689-bit.github.io',
-    methods: ['GET', 'POST']
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Cofigure json parsing
