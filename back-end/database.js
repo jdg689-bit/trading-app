@@ -12,6 +12,7 @@ async function connectToDB() {
 
     try {
         await client.connect();
+        console.log('Connected (from database.js)') // Remove after testing
         return client;
     } catch (error) {
         console.error(error);
