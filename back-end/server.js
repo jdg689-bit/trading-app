@@ -37,6 +37,7 @@ app.get('/', (req, res) => {
 
 app.post('/register', async (req, res) => {
     // Add user info to a mongo doc
+    console.log(`Attempting to register ${req.body.firstName}`) // Using to test Heroku connection
 
     try {
         // Connect to db
