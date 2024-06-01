@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-const port = 3000;
+const cors = require('cors');
 
 // **********************************************
 // SET UP
@@ -13,13 +13,18 @@ const db = require('./database.js');
 require('dotenv').config({path:path.join(__dirname, '../', '.env')});
 
 // Configure cors
-const cors = require('cors');
-
 app.use(cors({
     origin: 'https://jdg689-bit.github.io',
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Handle preflight requests (CORS)
+app.options('*', cors({
+    origin: 'https://jdg689-bit.github.io',
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}))
 
 // Cofigure json parsing
 app.use(express.json());
