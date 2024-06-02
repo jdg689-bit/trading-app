@@ -42,6 +42,7 @@ const router = createBrowserRouter([
 const App = () => (
   <HashRouter>
     <Root />
+    <Portfolio />
   </HashRouter>
 );
 
