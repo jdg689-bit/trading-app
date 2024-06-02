@@ -8,7 +8,7 @@ async function companySearch(text, setSuggestions) {
     // API KEY is accessible from the back-end, POST other neccessary information to the back-end
     try {
 
-        const response = await fetch(`http://localhost:3000/autocomplete`, {
+        const response = await fetch(`https://trading-platform-e1f89da02b4b.herokuapp.com/autocomplete`, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({"text": text})
@@ -28,7 +28,7 @@ async function companySearch(text, setSuggestions) {
 async function getStockPrice(symbol, setStockPrice) {
     // Request price from API, can use same express route as /quote
     try {
-        const response = await fetch('http://localhost:3000/quote', {
+        const response = await fetch('https://trading-platform-e1f89da02b4b.herokuapp.com/quote', {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({"stock": symbol})
@@ -90,7 +90,7 @@ async function makeTrade(orderDetails) {
 
     // Make fetch request to server.js
     try {
-        const response = await fetch('http://localhost:3000/make-trade', {
+        const response = await fetch('https://trading-platform-e1f89da02b4b.herokuapp.com/make-trade', {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(orderDetails)

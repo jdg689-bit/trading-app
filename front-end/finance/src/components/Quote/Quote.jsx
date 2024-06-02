@@ -34,7 +34,7 @@ export default function Quote() {
 
         // POST stock to back end -> back end will GET stock data from API and return
         try {
-            const response = await fetch('http://www.localhost:3000/quote', {
+            const response = await fetch('https://trading-platform-e1f89da02b4b.herokuapp.com/quote', {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({"stock": stock})

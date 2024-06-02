@@ -12,7 +12,7 @@ async function getHoldings() {
 
     // Make fetch request
     try {
-        const response = await fetch('http://localhost:3000/holdings', {
+        const response = await fetch('https://trading-platform-e1f89da02b4b.herokuapp.com/holdings', {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({token: token})
@@ -36,7 +36,7 @@ async function getLastPrices(stocksHeld) {
     // Get most recent closing prices for array of stocks provided
 
     try {
-        const response = await fetch('http://localhost:3000/get-prices', {
+        const response = await fetch('https://trading-platform-e1f89da02b4b.herokuapp.com/get-prices', {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(stocksHeld)

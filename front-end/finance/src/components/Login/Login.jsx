@@ -33,7 +33,7 @@ async function loginUser(credentials) {
     // Use document ObjectId to create sessionStorage token -> keeps user logged in across pages
 
     try {
-        const response = await fetch('http://localhost:3000/login', {
+        const response = await fetch('https://trading-platform-e1f89da02b4b.herokuapp.com/login', {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(credentials)
