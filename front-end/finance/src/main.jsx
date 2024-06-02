@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 // import {createBrowserRouter, RouterProvider} from 'react-router-dom';
-import { HashRouter, Route, Switch } from 'react-router-dom';
+import { HashRouter, Route, Routes } from 'react-router-dom';
 import './index.css';
 import Root from './components/Root/Root'
 import Quote from './components/Quote/Quote'
@@ -41,12 +41,12 @@ const router = createBrowserRouter([
 
 const App = () => (
   <HashRouter>
-    <Switch>
+    <Routes>
       <Route exact path='/' component={Root} />
       <Route path = '/quote' component={Quote} />
       <Route path = '/trade' component={Trade} />
       <Route path='/portfolio' component={Portfolio} />
-    </Switch>
+    </Routes>
   </HashRouter>
 );
 
