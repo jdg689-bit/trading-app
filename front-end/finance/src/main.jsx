@@ -45,7 +45,7 @@ const App = () => (
       <Route exact path='/' component={Root} />
       <Route path = '/quote' component={Quote} />
       <Route path = '/trade' component={Trade} />
-      <Route path='portfolio' component={Portfolio} />
+      <Route path='/portfolio' component={Portfolio} />
     </Switch>
   </HashRouter>
 );
