@@ -41,8 +41,12 @@ const router = createBrowserRouter([
 
 const App = () => (
   <HashRouter>
-    <Root />
-    <Portfolio />
+    <Switch>
+      <Route exact path='/' component={Root} />
+      <Route path = '/quote' component={Quote} />
+      <Route path = '/trade' component={Trade} />
+      <Route path='portfolio' component={Portfolio} />
+    </Switch>
   </HashRouter>
 );
 
