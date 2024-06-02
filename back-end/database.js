@@ -4,16 +4,18 @@ const {makeTrade} = require('./database-modules/tradeFunctions.js');
 
 
 async function connectToDB() {
-    console.log('Connecting...'); // Remove after testing
-    console.log(process.env.MONGO_DB_PWORD);
+    console.log(process.env.MONGO_DB_PWORD); //testing
 
     const uri = `mongodb+srv://myAtlasDBUser:${process.env.MONGO_DB_PWORD}@myatlasclusteredu.fz0pefl.mongodb.net/?retryWrites=true&w=majority&appName=myAtlasClusterEDU`
 
     const client = new MongoClient(uri);
 
+    console.log(`Client: ${client}`); //testing
+
     try {
+        console.log(`Connecting to client`) //testing
         await client.connect();
-        console.log('Connected (from database.js)') // Remove after testing
+        console.log('Connected.') // Remove after testing
         return client;
     } catch (error) {
         console.error(error);

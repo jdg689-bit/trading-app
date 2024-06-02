@@ -43,7 +43,9 @@ app.post('/register', async (req, res) => {
         // Connect to db
         const client = await db.connectToDB();
 
-        if (client) console.log('Connection established');
+        if (client) {
+            console.log('Connection established');
+        }
 
         const newUser = {
             firstname: req.body.firstName,
