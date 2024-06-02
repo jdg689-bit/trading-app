@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 // import {createBrowserRouter, RouterProvider} from 'react-router-dom';
-import { HashRouter } from 'react-router-dom';
+import { HashRouter, Switch } from 'react-router-dom';
 import './index.css';
 import Root from './components/Root/Root'
 import Quote from './components/Quote/Quote'
