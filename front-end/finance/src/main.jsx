@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 // import {createBrowserRouter, RouterProvider} from 'react-router-dom';
-import { HashRouter, Route, Routes } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import './index.css';
 import Root from './components/Root/Root'
 import Quote from './components/Quote/Quote'
@@ -39,13 +39,16 @@ const router = createBrowserRouter([
 ]);
 */
 
+
 const App = () => (
   <HashRouter>
     <Routes>
-      <Route exact path='/' component={Root} />
-      <Route path = '/quote' component={Quote} />
-      <Route path = '/trade' component={Trade} />
-      <Route path='/portfolio' component={Portfolio} />
+      <Route path='/' element={<Root />}>
+        <Route index element={<Portfolio />} />
+        <Route exact path = '/quote' element={<Quote />} />
+        <Route exact path = '/trade' element={<Trade />} />
+        <Route exact path='/portfolio' element={<Portfolio />} />
+      </Route>
     </Routes>
   </HashRouter>
 );
