@@ -16,6 +16,7 @@ a, a:visited {
 h1, h2 {
     font-family: Arial, Helvetica, sans-serif;
     text-align: center;
+    color: red;
 }
 a {
     cursor: pointer;
